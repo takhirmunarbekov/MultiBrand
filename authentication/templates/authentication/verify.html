@@ -1,0 +1,24 @@
+<html>
+<head>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <button id="button">Verify</button>
+  <p id="info"></p>
+  <script>
+    axios.defaults.xsrfCookieName = "csrftoken";
+    axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+    var button = document.getElementById('button');
+    var info = document.getElementById('info');
+    button.onclick = function () {
+      axios.post("{% url 'account_email_verification_sent' %}", {
+        key: "{{ key }}"
+      }).then((response) => {
+        info.innerHTML = JSON.stringify(response.data);
+      }).catch((error) => {
+        info.innerHTML = JSON.stringify(error.response.data);
+      });
+    };
+  </script>
+<body>
+</html>

@@ -40,11 +40,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'rest_framework',
+    'rest_framework.authtoken',
+    'allauth',
+    'allauth.account',
+    'rest_auth',
+    'rest_auth.registration',
     'djmoney',
     'djmoney.contrib.exchange',
     'markupfield',
     'phonenumber_field',
+    'authentication',
     'goods',
     'orders',
 ]
@@ -86,7 +93,7 @@ WSGI_APPLICATION = 'multibrand.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'multibrand',
+        'NAME': 'multi',
         'USER' : 'multibrand',
         'PASSWORD' : 'multibrand',
         'HOST' : '127.0.0.1',
@@ -115,9 +122,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/2.0/topics/i18n/
+# https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru-RU'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'Asia/Almaty'
 
@@ -127,11 +134,10 @@ USE_L10N = True
 
 USE_TZ = True
 
-CURRENCIES = ('KZT',)
-
 LANGUAGES = (
-    ('ru', _('Russian')),
-    ('en', _('English')),
+    ('en', _("English")),
+    ('ru', _("Russian")),
+    ('kz', _("Kazakh")),
 )
 
 LOCALE_PATHS = (
@@ -139,16 +145,57 @@ LOCALE_PATHS = (
 )
 
 
+# Django REST
+
+REST_FRAMEWORK = {
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    )
+}
+
+
+# Authentication
+
+AUTH_USER_MODEL = 'authentication.CustomUser'
+
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+REST_AUTH_SERIALIZERS = {
+    'LOGIN_SERIALIZER': 'authentication.serializers.LoginSerializer',
+    'USER_DETAILS_SERIALIZER': 'authentication.serializers.UserSerializer',
+    'TOKEN_SERIALIZER': 'authentication.serializers.TokenSerializer',
+}
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'authentication.serializers.RegisterSerializer',
+}
+
+
+
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
+# https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# Media files
 
 MEDIA_URL = '/media/'
+MEDIA_ROOT  = os.path.join(os.path.dirname(BASE_DIR), 'media')
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Markup
@@ -179,3 +226,13 @@ CACHES = {
         'LOCATION': '127.0.0.1:11211',
     },
 }
+
+
+# Site
+
+SITE_ID = 1
+
+
+# Email
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

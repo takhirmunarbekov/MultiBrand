@@ -1,0 +1,33 @@
+<html>
+<head>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <label for="password">Password</label>
+  <input type="password" id="password" />
+  <label for="password">Confirm password</label>
+  <input type="password" id="confirm-password" />
+  <button id="button">Change</button>
+  <p id="info"></p>
+  <script>
+    axios.defaults.xsrfCookieName = "csrftoken";
+    axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+    var button = document.getElementById('button');
+    var password = document.getElementById('password');
+    var confirmPassword = document.getElementById('confirm-password');
+    var info = document.getElementById('info');
+    button.onclick = function () {
+      axios.post("{% url 'rest_password_reset_confirm' %}", {
+        new_password1: password.value,
+        new_password2: confirmPassword.value,
+        uid: "{{ uidb64 }}",
+        token: "{{ token }}"
+      }).then((response) => {
+        info.innerHTML = JSON.stringify(response.data);
+      }).catch((error) => {
+        info.innerHTML = JSON.stringify(error.response.data);
+      });
+    };
+  </script>
+<body>
+</html>
