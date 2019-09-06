@@ -3,6 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
 from .views import (
+    CategoriesViewSet,
     ItemsViewSet,
     CategorizedItemsViewSet,
     HitItemsViewSet,
@@ -12,10 +13,11 @@ from .views import (
 
 
 router = SimpleRouter()
+router.register('categories', CategoriesViewSet)
 router.register('', ItemsViewSet)
 
+
 urlpatterns = [
-    
     path('category/<str:category>/', include([
         path('', CategorizedItemsViewSet.as_view()),
         path('hit/', HitItemsViewSet.as_view()),

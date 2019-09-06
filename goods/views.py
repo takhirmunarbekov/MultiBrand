@@ -1,10 +1,15 @@
+from collections import OrderedDict
+
 from django.shortcuts import get_object_or_404
 from django.db.models import (
     Count, Case, When, BooleanField, FloatField, Avg, F
 )
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import (
+    ViewSet,
+    ReadOnlyModelViewSet,
+)
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
@@ -18,6 +23,7 @@ from .models import (
 )
 
 from .serializers import (
+    CategoriesJsonSerializer,
     ItemSerializer,
     ItemDetailSerializer,
     FeedbackSerializer,
@@ -30,6 +36,38 @@ from .paginations import (
 
 
 # Create your views here.
+
+
+class CategoriesViewSet(ViewSet):
+
+    queryset = Category.objects.all()
+    serializer_class = CategoriesJsonSerializer
+
+    def list(self, request):
+        childs = set()
+        categories_dict = OrderedDict()
+        for category in self.queryset.select_related('of'):
+            if category.id not in categories_dict:
+                categories_dict[category.id] = {'subcategories': []}
+            categories_dict[category.id]['id'] = category.id
+            categories_dict[category.id]['name'] = category.name
+            categories_dict[category.id]['description'] = category.description
+            if category.of is not None:
+                childs.add(category.id)
+                if category.of.id not in categories_dict:
+                    categories_dict[category.of.id] = {'subcategories': []}
+                categories_dict[category.of.id]['subcategories'].append(
+                    categories_dict[category.id]
+                )
+        for child in childs:
+            del categories_dict[child]
+        serializer = self.serializer_class(data={
+            'categories': categories_dict.values()
+        })
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data)
+
+
 
 class ItemsViewSet(ReadOnlyModelViewSet):
 

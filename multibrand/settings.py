@@ -42,8 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'djmoney',
+    'djmoney.contrib.exchange',
     'markupfield',
+    'phonenumber_field',
     'goods',
+    'orders',
 ]
 
 MIDDLEWARE = [
@@ -158,3 +161,21 @@ MARKUP_FIELD_TYPES = (
     ('markdown', markdown.markdown),
     ('rest', render_rest),
 )
+
+
+# Cache
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    },
+    'orders': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    },
+    'data': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    },
+}

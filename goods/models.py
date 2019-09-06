@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import (
+    ValidationError,
+    MaxValueValidator,
+    MinValueValidator,
+)
+from ordered_model.models import OrderedModel
 from djmoney.models.fields import MoneyField
 from markupfield.fields import MarkupField
 
@@ -8,7 +13,7 @@ from markupfield.fields import MarkupField
 # Create your models here.
 
 
-class Category(models.Model):
+class Category(OrderedModel):
     
     of = models.ForeignKey(to='self',
         related_name='subcategories',
@@ -20,9 +25,25 @@ class Category(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    class Meta:
+    order_with_respect_to = 'of'
 
-        ordering = ('-created',)
+    class Meta(OrderedModel.Meta):
+        
+        pass
+
+    def clean(self, *args, **kwargs):
+        visited = set()
+        category = self
+        while category is not None:
+            if category.id in visited:
+                raise ValidationError("Found recursive cycle!")
+            visited.add(category.id)
+            category = category.of
+        super(Category, self).clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Category, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name

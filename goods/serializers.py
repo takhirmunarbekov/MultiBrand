@@ -57,6 +57,26 @@ class CategorySerializer(serializers.ModelSerializer):
         )
 
 
+class CategoryNoneRecursiveSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Category
+        fields = (
+            'id',
+            'subcategories',
+            'name',
+            'description',
+        )
+
+
+class CategoriesJsonSerializer(serializers.Serializer):
+
+    categories = serializers.ListField(
+        child=serializers.JSONField()
+    )
+
+
 class ItemSerializer(serializers.ModelSerializer):
 
     stock = StockSerializer()
