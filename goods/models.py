@@ -76,7 +76,7 @@ class Item(models.Model):
     name = models.CharField(max_length=255)
     desc = models.TextField(blank=True)
     description = models.TextField(blank=True)
-    body = MarkupField()
+    body = MarkupField(blank=True, default_markup_type='markdown')
     amount = models.IntegerField()
     unit = models.CharField(max_length=10, choices=UNIT_CHOICES)
     image = models.ImageField(upload_to='items/%Y/%m/%d', null=True, blank=True)

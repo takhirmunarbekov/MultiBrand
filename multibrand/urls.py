@@ -18,8 +18,15 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
+from rest_framework.documentation import include_docs_urls
+
+API_TITLE = 'API title'
+API_DESCRIPTION = '...'
+
 urlpatterns = [
     path('goods/', include('goods.urls')),
     path('orders/', include('orders.urls')),
+    path('auth/', include('authentication.urls')),
     path('admin/', admin.site.urls),
+    path('docs/', include_docs_urls(title=API_TITLE, description=API_DESCRIPTION))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

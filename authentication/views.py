@@ -30,13 +30,10 @@ from allauth.account.utils import (
     send_email_confirmation,
 )
 
-from bots.models import UserProfile
-
 from .models import CustomUser as UserModel
 
 from .serializers import (
     UserSerializer,
-    UserDetailSerializer,
     EmailAddressSerializer,
     EmailSerializer,
 )
@@ -49,31 +46,9 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
 
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return UserDetailSerializer
-        else:
-            return UserSerializer
-
-    def get_queryset(self):
-        if self.action == 'retrieve':
-            return UserModel.objects.all()
-        else:
-            profile, created = UserProfile.objects.get_or_create(user=self.request.user)
-            return profile.to_contacts
-
     @action(detail=False, methods=['GET'])
     def me(self, request):
         serializer = self.serializer_class(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=['POST'])
-    def ids(self, request):
-        queryset = []
-        if 'ids' in request.data and type(request.data['ids']) is list:
-            queryset = UserModel.objects.exclude(id=request.user.id) \
-                            .filter(id__in=request.data['ids'])
-        serializer = UserSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['PUT'])

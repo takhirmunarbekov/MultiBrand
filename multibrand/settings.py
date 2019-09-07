@@ -28,7 +28,7 @@ SECRET_KEY = 'snxogh9$=dzasbpwo&=2@f8v!fmc)70e362j384d!m8k%d+a%d'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['35.246.29.253',]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '35.246.29.253',]
 
 
 # Application definition
@@ -51,12 +51,15 @@ INSTALLED_APPS = [
     'djmoney.contrib.exchange',
     'markupfield',
     'phonenumber_field',
+    'django_filters',
     'authentication',
     'goods',
     'orders',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -152,9 +155,10 @@ REST_FRAMEWORK = {
     #     'rest_framework.permissions.IsAuthenticated',
     # ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-    )
+        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
 
@@ -200,14 +204,14 @@ MEDIA_ROOT  = os.path.join(os.path.dirname(BASE_DIR), 'media')
 
 # Markup
 
-def render_rest(markup):
-    parts = publish_parts(source=markup, writer_name='html4css1')
-    return parts['fragment']
+# def render_rest(markup):
+#     parts = publish_parts(source=markup, writer_name='html4css1')
+#     return parts['fragment']
 
-MARKUP_FIELD_TYPES = (
-    ('markdown', markdown.markdown),
-    ('rest', render_rest),
-)
+# MARKUP_FIELD_TYPES = (
+#     ('markdown', markdown.markdown),
+#     ('rest', render_rest),
+# )
 
 
 # Cache
@@ -236,3 +240,10 @@ SITE_ID = 1
 # Email
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+# Cors
+
+SESSION_COOKIE_SAMESITE = None
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True

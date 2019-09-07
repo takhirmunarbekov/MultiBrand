@@ -94,21 +94,6 @@ class UserSerializer(serializers.ModelSerializer):
                 )
             )
         ]
-    
-    
-class UserDetailSerializer(UserSerializer):
-
-    in_contact = serializers.SerializerMethodField()
-
-    class Meta(UserSerializer.Meta):
-
-        fields = UserSerializer.Meta.fields + (
-            'in_contact',
-        )
-
-    def get_in_contact(self, user):
-        return self.context['request'].user.profile \
-                    .to_contacts.filter(pk=user.pk).exists()
 
 
 class LoginSerializer(serializers.Serializer):

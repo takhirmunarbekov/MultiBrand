@@ -1,3 +1,5 @@
+import django_filters
+
 from collections import OrderedDict
 
 from django.shortcuts import get_object_or_404
@@ -13,6 +15,8 @@ from rest_framework.viewsets import (
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+
+from rest_framework import filters
 
 from .models import (
     Category,
@@ -34,6 +38,9 @@ from .paginations import (
     ItemsSetPagination,
 )
 
+from .filters import (
+    ItemFilter,
+)
 
 # Create your views here.
 
@@ -74,6 +81,12 @@ class ItemsViewSet(ReadOnlyModelViewSet):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
     pagination_class = ItemsSetPagination
+    filterset_class = ItemFilter
+    filter_backends = (
+        filters.OrderingFilter,
+        django_filters.rest_framework.DjangoFilterBackend,
+    )
+    ordering_fields = ('created', 'updated',)
 
     def get_queryset(self):
         likes = ratings = []
@@ -156,6 +169,12 @@ class CategorizedItemsViewSet(ListAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
     pagination_class = ItemsSetPagination
+    # filterset_class = ItemFilter
+    # filter_backends = (
+    #     filters.OrderingFilter,
+    #     django_filters.rest_framework.DjangoFilterBackend,
+    # )
+    ordering_fields = ('created', 'updated',)
 
     def get_queryset(self):
         likes = ratings = []
@@ -209,6 +228,8 @@ class CategorizedItemsViewSet(ListAPIView):
             else:
                 queryset = self.get_queryset() \
                     .filter(category=int(category))
+            filtered_data = ItemFilter(request.GET, queryset=queryset)
+            queryset = filtered_data.qs
             page = self.paginate_queryset(queryset)
             if page is not None:
                 serializer = self.serializer_class(page, many=True)
