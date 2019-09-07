@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from djmoney.money import Money
 from djmoney.contrib.exchange.models import convert_money
 
@@ -66,6 +66,14 @@ DEFAULT_TIMEOUT = 3 * 24 * 60 * 60 + 3600
 
 class OrderManager:
 
+    class NoItemsException(Exception):
+
+        pass
+
+    class NoneOrderException(Exception):
+
+        pass
+
     @staticmethod
     def from_data(data):
         try:
@@ -86,6 +94,10 @@ class OrderManager:
 
     def __init__(self, order, items,
             deadline=None, order_id=None):
+        if order is None:
+            raise OrderManager.NoneOrderException()
+        if items is None or len(items) == 0:
+            raise OrderManager.NoItemsException()
         self.order = order
         self.items = items
         self.deadline = deadline
@@ -160,7 +172,6 @@ class ConfirmOrderAPIView(APIView):
             pass
         
         else:
-
             return Response(status.HTTP_404_NOT_FOUND)
 
 
@@ -202,11 +213,15 @@ class OrderAPIView(APIView):
             order = request.session.get(ORDER_KEY)
             order_manager = OrderManager(order, items)
             data = order_manager.pack(uuid4().hex)
-            # TODO: Send email
-            return Response({
-                'url': request.build_absolute_uri(
-                    reverse('confirm_order', kwargs={'data': data}))
-            })
+            url = request.build_absolute_uri(reverse(
+                'confirm_order', kwargs={'data': data}))
+            request.session[BASKET_KEY] = {}
+            request.session.modified = True
+            return Response({'url': url})
+        except OrderManager.NoneOrderException:
+            raise ValidationError("Please, provide ordering informations.")
+        except OrderManager.NoItemsException:
+            raise ValidationError("Please, select items.")
         except AttributeError:
             raise NotFound()
 
@@ -253,6 +268,9 @@ class BasketAPIView(APIView):
         item = serializer.validated_data['item']
         amount = serializer.validated_data['amount']
         price = convert_money(Money(item.price.amount, item.price.currency), DEFAULT_CURRENCY)
+        stock = item.stock
+        if stock is not None:
+            price -= price * stock.percent
         serializer = ItemOrderSerializer({
             'item': item,
             'vendor_code': item.vendor_code,

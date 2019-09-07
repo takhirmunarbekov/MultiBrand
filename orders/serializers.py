@@ -12,7 +12,7 @@ from .models import (
 
 class ItemOrderReadOnlySerializer(serializers.ModelSerializer):
 
-    id = serializers.IntegerField()
+    # id = serializers.IntegerField()
     item = ItemSerializer(read_only=True)
 
     class Meta:

@@ -35,6 +35,12 @@ class ItemAdmin(admin.ModelAdmin):
     ordering = ('category', 'name', 'vendor_code', 'price',)
 
 
+@admin.register(Stock)
+class StockAdmin(admin.ModelAdmin):
+
+    pass
+
+
 @admin.register(Like)
 class LikeAdmin(admin.ModelAdmin):
 

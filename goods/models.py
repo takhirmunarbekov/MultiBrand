@@ -105,8 +105,6 @@ class Stock(models.Model):
         MinValueValidator(0),
         MaxValueValidator(1),
     ])
-    start = models.DateTimeField()
-    end = models.DateTimeField()
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -116,7 +114,7 @@ class Stock(models.Model):
         ordering = ('-created',)
 
     def __str__(self):
-        return self.item
+        return str(self.item)
 
 
 class Feedback(models.Model):
@@ -135,7 +133,7 @@ class Feedback(models.Model):
         ordering = ('-created',)
 
     def __str__(self):
-        return self.user
+        return str(self.user)
 
 
 class Rating(models.Model):
