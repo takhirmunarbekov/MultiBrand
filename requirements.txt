@@ -30,7 +30,7 @@ MarkupSafe==1.1.1
 oauthlib==3.1.0
 openpyxl==2.6.2
 phonenumbers==8.10.17
-Pillow==6.1.0
+Pillow==9.0.0
 psycopg2-binary==2.8.3
 py-moneyed==0.8.0
 pycparser==2.19
